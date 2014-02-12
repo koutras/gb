@@ -129,8 +129,22 @@ public class Betweeness extends BasicComputation<
           LOG.debug("Vertex " + vertex.getId() + " sent to " +
               edge.getTargetVertexId() + " = " + distance);
         }
-        sendMessage(edge.getTargetVertexId(), new DoubleWritable(distance));
+        sendMessage(vertexId,edge.getTargetVertexId(), new DoubleWritable(distance));
       }
+    }
+  }
+	
+	
+	//send message wrapper from bracha
+	
+	private void sendMessage(long sender, long receiver, long messageType) {
+    BrachaTouegDeadlockMessage  message;
+
+    message = new BrachaTouegDeadlockMessage(sender, messageType);
+    sendMessage(new LongWritable(receiver), message);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("sent message " + message + " from " + sender +
+                " to " + receiver);
     }
   }
 }
