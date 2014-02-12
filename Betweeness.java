@@ -69,9 +69,10 @@ public class Betweeness extends BasicComputation<
       Vertex<LongWritable, myVertexValue, FloatWritable> vertex, 
       Iterable<myMessage> messages) throws IOException {
 	
-	double delta;
-	double sigma;
+	double delta = vertex.getDelta();
+	double sigma = vertex.getSigma();
 	ArrayList<LongWritable>myParents = vertex.getParents(); //kathe kombos exei lista me tous goneis tou (predessesor)
+	
 	double minDist = isSource(vertex) ? 0d : Double.MAX_VALUE;
 	long vertexId = vertex.getId().get();
     
@@ -79,44 +80,49 @@ public class Betweeness extends BasicComputation<
 	
 	if((getSuperstep()mod nodes_num==0){ //send message to my parents containing delta
 		
-		//node sends it's sigma to its parent
+		//node sends it's sigma to its parents
 		for(int i;i<myParents.size();i++)
-  			sendMessage(vertexId,myParents[i],sigma,minDist,vertexId );
-       // (long sender, long receiver, long value, long distance long senderId) 
+			sendMessage(vertexId, myParents[i], sigma, delta, minDist) {
 		
 	}
 	if((getSuperstep()mod nodes_num==1){ //each node collects the message from it's kids and updates delta
 		
 		for(myMessage message:messages){ //hopefully in this step the messages are from a node's kids
-			kids_sigma=message.getValue();
+			kids_sigma=message.getSigma();
 			kids_delta=message.getDelta();
 			//do computations of delta
 			delta+=(sigma/kids_sigma)*(1+kids_delta)
+			vertex.setDelta(delta);
 		}
 
   
 		//clear vertex info
 		vertex.clearParents();
 		vertex.setDistance(Double.MAX_VALUE); // return a node to  undiscovered
-		vertex.setValue(0);
+		vertex.setSigma(0);
+		vertex.setDelta(0);
 		
 	}
 	if(getSuperstep()==nodes_num*nodes_num){
+		if (LOG.isDebugEnabled()) {
+	      LOG.debug("Vertex " + vertex.getId() + " has betweenness = " + vertex.getDelta());
+	    }
 		vertex.voteToHalt();  
 	}
 	
 	
     if (getSuperstep() == 0) {
       vertex.setDistance(0);
-	  vertex.setValue(0);
+	  vertex.setDelta(0);
+	  vertex.setSigma(0);
 	  delta=0;
     }
 
-
     for (DoubleWritable message : messages) {
 	
-	 if(minDist>message.getDistance()){
-      minDist = message.getDistance();
+	 if(minDist>message.getDistance()){ //minDist here is the minimum value amongst the messages
+       minDist = message.getDistance();
+		vertex.setSigma(sigma + message.getSigma());
 		vertex.addParent(message.getSenderId()); //adding the parent
 	}
 	
@@ -125,7 +131,7 @@ public class Betweeness extends BasicComputation<
       LOG.debug("Vertex " + vertex.getId() + " got minDist = " + minDist +
           " vertex value = " + vertex.getValue());
     }
-    if (minDist < vertex.getDistance()) {
+    if (minDist < vertex.getDistance()) { //if the minimum value from the messages is smaller that the vertex's...
 	
       vertex.setDistance(minDist);
       for (Edge<LongWritable, FloatWritable> edge : vertex.getEdges()) {
@@ -134,7 +140,7 @@ public class Betweeness extends BasicComputation<
           LOG.debug("Vertex " + vertex.getId() + " sent to " +
               edge.getTargetVertexId() + " = " + distance);
         }
-        sendMessage(vertexId,edge.getTargetVertexId(),sigma, minDist);
+        sendMessage(vertexId,edge.getTargetVertexId(),sigma, delta minDist);		
       }
     }
   }
@@ -142,10 +148,10 @@ public class Betweeness extends BasicComputation<
 	
 	//send message wrapper from bracha
 	
-	private void sendMessage(long sender, long receiver, long value, long distance long senderId) {
+	private void sendMessage(long sender, long receiver, long sigma, long delta, long distance long senderId) {
     BrachaTouegDeadlockMessage  message;
 
-    message = new myMessage(sender, value, distance);
+    message = new myMessage(sender, sigma, delta, distance);
     sendMessage(new LongWritable(receiver), message);
     if (LOG.isDebugEnabled()) {
       LOG.debug("sent message " + message + " from " + sender +
