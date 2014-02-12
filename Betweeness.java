@@ -66,10 +66,40 @@ public class SimpleShortestPathsComputation extends BasicComputation<
   public void compute( 
       Vertex<LongWritable, myVertexValue, FloatWritable> vertex, 
       Iterable<DoubleWritable> messages) throws IOException {
+	
+	Long nodes_num=34; //o arithmos twn komvwn prosarmosmeno gia to paradeigma karate
+	double delta;
+	double sigma;
+	double minDist = isSource(vertex) ? 0d : Double.MAX_VALUE;
+    
+	
+	if((getSuperstep()mod nodes_num==0){ //send message to my parents containing delta
+		minDist=Double.MAX_VALUE; // einai san na to gyrizw se undiscovered ton node
+		
+		//node sends it's sigma to its parent
+  		sendMessage(edge.getTargetVertexId(), new DoubleWritable(sigma));
+        
+	}
+	if((getSuperstep()mod nodes_num==1){ //each node collects the message from it's kids and updates delta
+		
+		for(myMessage message:messages){
+			kids_sigma=message.getValue();
+			//do computations of delta
+		}
+
+  
+	}
+	if(getSuperstep()==nodes_num*nodes_num){
+		vertex.voteToHalt();  
+	}
+	
+	
     if (getSuperstep() == 0) {
       vertex.setValue(new DoubleWritable(Double.MAX_VALUE));
     }
-    double minDist = isSource(vertex) ? 0d : Double.MAX_VALUE;
+
+    myParents = new ArrayList<Long>(); //kathe kombos exei lista me tous goneis tou (predessesor)
+
     for (DoubleWritable message : messages) {
       minDist = Math.min(minDist, message.get());
     }
@@ -88,7 +118,6 @@ public class SimpleShortestPathsComputation extends BasicComputation<
         sendMessage(edge.getTargetVertexId(), new DoubleWritable(distance));
       }
     }
-    vertex.voteToHalt();
   }
 }
 

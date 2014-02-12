@@ -1,7 +1,9 @@
-Impement Brandes way of calculating betweenness
+Implement Brandes way of calculating betweenness
 
-Todo: enable Logger Debug Output
-	Find a way to pass a external global Variable to Giraph(number of nodes)
+Todo: 1)enable Logger Debug Output
+	2)Find a way to pass a external global Variable to Giraph(number of nodes)
+	3) As I have bypassed vertex Value, there must be a way to fix the way output is printed after
+		the computation, for example override giraph.io.VertexWriter
 
 idea -> change BrachaTouegDeadlockVertexValue
 ---------------------------------------------------------

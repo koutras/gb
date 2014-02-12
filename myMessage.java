@@ -37,30 +37,30 @@ public class myMessage implements Writable {
   /** Vertex ID of the sender. */
   private long  senderId;
   /** delta. */
-  private long  delta;
+  private long  value;
 
   /** Default empty constructor. */
   public BrachaTouegDeadlockMessage() { /* no action */ }
 
   /**
    * @param id        id of the vertex
-   * @param type      actual message content
+   * @param value      actual message content
    */
   public myMessage(long id, long type) { //akis: this is the constructor I need
     this.senderId = id;
-    this.type = type;
+    this.value = value;
   }
 
   @Override
   public void readFields(DataInput input) throws IOException {
     senderId = input.readLong();
-    this.delta = input.readLong();
+    this.value = input.readLong();
   }
 
   @Override
   public void write(DataOutput output) throws IOException {
     output.writeLong(senderId);
-    output.writeLong(this.type);
+    output.writeLong(this.value);
   }
 
   /**
@@ -71,31 +71,21 @@ public class myMessage implements Writable {
   }
 
   /**
-   * @return long the type
+   * @return long value of a node
    */
-  public long getType() {
-    return type;
+  public long getValue() {
+    return value;
   }
 
   @Override
-  public String toString() {
+  public String toString() { //den xerw an to xreiazomai gia thn wra
     StringBuffer buffer = new StringBuffer();
 
     buffer.append("Message ");
-    buffer.append("{ sender: " +  this.senderId + "; type: ");
-    if (this.type == BrachaTouegDeadlockMessage.NOTIFY) {
-      buffer.append("notify");
-    } else if (this.type == BrachaTouegDeadlockMessage.GRANT) {
-      buffer.append("grant");
-    } else if (this.type == BrachaTouegDeadlockMessage.ACK) {
-      buffer.append("ack");
-    } else if (this.type == BrachaTouegDeadlockMessage.DONE) {
-      buffer.append("done");
-    } else if (this.type == BrachaTouegDeadlockMessage.CTRL_IN_EDGE) {
-      buffer.append("<ctrl>");
-    } else {
-      buffer.append("unknown");
-    }
+    buffer.append("{ sender: " +  this.senderId + "; value: ");
+		
+		
+	buffer.append(Long.toString(value)); //den xerw an exw kanei kalh metatroph
     buffer.append(" }");
 
     return buffer.toString();
