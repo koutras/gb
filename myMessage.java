@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+// look at the overrides where I have commented them
 //akis: this must be placed in utils folder
 
 //akis: opou exei type vazw to delta
@@ -36,21 +37,28 @@ public class myMessage implements Writable {
 
   /** Vertex ID of the sender. */
   private long  senderId;
-  /** delta. */
-  private long  value;
+  /** sigma. **/
+  private long  sigma;
+  private long delta;
 
   /** Default empty constructor. */
   public BrachaTouegDeadlockMessage() { /* no action */ }
 
   /**
    * @param id        id of the vertex
-   * @param value      actual message content
+   * @param sigma      actual message content
+   * @param delta
+   * @param distance      distance
+   
    */
-  public myMessage(long id, long type) { //akis: this is the constructor I need
+  public myMessage(long id, long sigma, long delta,long distance) { //akis: this is the constructor I need
     this.senderId = id;
-    this.value = value;
+    this.sigma = sigma;
+	this.delta = delta;
+	this.distance=distance
   }
 
+/*
   @Override
   public void readFields(DataInput input) throws IOException {
     senderId = input.readLong();
@@ -62,6 +70,7 @@ public class myMessage implements Writable {
     output.writeLong(senderId);
     output.writeLong(this.value);
   }
+*/
 
   /**
    * @return long the id
@@ -73,19 +82,28 @@ public class myMessage implements Writable {
   /**
    * @return long value of a node
    */
-  public long getValue() {
-    return value;
+  public long getSigma() {
+    return sigma;
   }
+
+  public long getDelta(){
+	return delta;
+}
+  public long getDistance(){
+	return distance;
+}
 
   @Override
   public String toString() { //den xerw an to xreiazomai gia thn wra
     StringBuffer buffer = new StringBuffer();
 
     buffer.append("Message ");
-    buffer.append("{ sender: " +  this.senderId + "; value: ");
+    buffer.append("{ sender: " +  this.senderId + "; sigma: ");
 		
 		
-	buffer.append(Long.toString(value)); //den xerw an exw kanei kalh metatroph
+	buffer.append(Long.toString(sigma)); //den xerw an exw kanei kalh metatroph
+	buffer.append("; delta: ")
+	buffer.append(Long.toString(delta));
     buffer.append(" }");
 
     return buffer.toString();

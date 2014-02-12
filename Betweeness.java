@@ -80,14 +80,18 @@ public class Betweeness extends BasicComputation<
 	if((getSuperstep()mod nodes_num==0){ //send message to my parents containing delta
 		
 		//node sends it's sigma to its parent
-  		sendMessage(edge.getTargetVertexId(), new DoubleWritable(sigma));
-        
+		for(int i;i<myParents.size();i++)
+  			sendMessage(vertexId,myParents[i],sigma,minDist,vertexId );
+       // (long sender, long receiver, long value, long distance long senderId) 
+		
 	}
 	if((getSuperstep()mod nodes_num==1){ //each node collects the message from it's kids and updates delta
 		
-		for(myMessage message:messages){
+		for(myMessage message:messages){ //hopefully in this step the messages are from a node's kids
 			kids_sigma=message.getValue();
+			kids_delta=message.getDelta();
 			//do computations of delta
+			delta+=(sigma/kids_sigma)*(1+kids_delta)
 		}
 
   
@@ -104,7 +108,8 @@ public class Betweeness extends BasicComputation<
 	
     if (getSuperstep() == 0) {
       vertex.setDistance(0);
-	vertex.setValue(0);
+	  vertex.setValue(0);
+	  delta=0;
     }
 
 
@@ -112,7 +117,7 @@ public class Betweeness extends BasicComputation<
 	
 	 if(minDist>message.getDistance()){
       minDist = message.getDistance();
-		vertex.addParent(message.getSenderId())
+		vertex.addParent(message.getSenderId()); //adding the parent
 	}
 	
     }
@@ -129,7 +134,7 @@ public class Betweeness extends BasicComputation<
           LOG.debug("Vertex " + vertex.getId() + " sent to " +
               edge.getTargetVertexId() + " = " + distance);
         }
-        sendMessage(vertexId,edge.getTargetVertexId(), new DoubleWritable(distance));
+        sendMessage(vertexId,edge.getTargetVertexId(),sigma, minDist);
       }
     }
   }
@@ -137,10 +142,10 @@ public class Betweeness extends BasicComputation<
 	
 	//send message wrapper from bracha
 	
-	private void sendMessage(long sender, long receiver, long messageType) {
+	private void sendMessage(long sender, long receiver, long value, long distance long senderId) {
     BrachaTouegDeadlockMessage  message;
 
-    message = new BrachaTouegDeadlockMessage(sender, messageType);
+    message = new myMessage(sender, value, distance);
     sendMessage(new LongWritable(receiver), message);
     if (LOG.isDebugEnabled()) {
       LOG.debug("sent message " + message + " from " + sender +

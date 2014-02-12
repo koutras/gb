@@ -35,14 +35,16 @@ public class myVertexValue implements Writable {
 	
  //akis
  private Long distance;
- private Long value;
+ private Long sigma;
+ private Long delta;
  private ArrayList<LongWritable> myParents;
 
 
 
   public myVertex() {
 
-	this.value=0;
+	this.sigma=0;
+	this.delta=0;
 	this.distance=Double.MAX_VALUE;
 	myParents = new ArrayList<LongWritable>(); //parents of a node (predessesor)
    
@@ -61,12 +63,19 @@ public class myVertexValue implements Writable {
 		this.distance=distance;
 	}
 
-	 public Long getValue(){
-		return this.value;
+	 public Long getSigma(){
+		return this.sigma;
 	}
 
-	 public void setValue(Long value){
-		this.value=value;
+	 public void setSigma(Long sigma){
+		this.value=sigma;
+	}
+	public Long getDelta(){
+		return this.delta;
+	}
+	
+	public void setDelta(Long delta){
+		this.delta=delta
 	}
 	
 	public void addParent(LongWritable pid){
@@ -84,7 +93,7 @@ public class myVertexValue implements Writable {
 
 	  @Override
 	  public String toString() {
-	    return "value:" + Long.toString(value);
+	    return "sigma:" + Long.toString(sigma) +"delta: " + Long.toString(delta);
 	  }
 
 	//akis: I cannot touch them yet
