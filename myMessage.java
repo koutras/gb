@@ -17,6 +17,9 @@
  */
 
 //akis: this must be placed in utils folder
+
+//akis: opou exei type vazw to delta
+
 package org.apache.giraph.examples.utils;
 
 import java.io.DataInput;
