@@ -21,9 +21,9 @@
 
 //akis: opou exei type vazw to delta
 
-//package org.apache.giraph.examples.utils;
+package org.apache.giraph.examples.utils;
 
-package Betweeness;
+//package Betweeness;
 
 
 import java.io.DataInput;

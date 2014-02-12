@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-//package org.apache.giraph.examples.utils;
-package Betweeness;
+package org.apache.giraph.examples.utils;
+//package Betweeness;
 
 
 import java.io.DataInput;
