@@ -30,34 +30,36 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 
 
-//import org.apache.giraph.examples.utils.myVertexValue; //akis: this is my import
+import org.apache.giraph.examples.utils.myVertexValue; //akis: this is my import
+import org.apache.giraph.examples.utils.myMessage;
+
 
 
 /**
- * Demonstrates the basic Pregel shortest paths implementation.
+ * Implementing Betweeness calculaton based on SimpleShortestPathsComputation 
  */
 @Algorithm(
     name = "Single Source Betweeness (based on Shortest paths)",
     description = "Finds all shortest paths from a selected vertex and update some values like parents and sigma"
 )
-public class SimpleShortestPathsComputation extends BasicComputation<
+public class Betweeness extends BasicComputation<
     LongWritable,myVertexValue, FloatWritable, DoubleWritable> {  //akis: exchanged DoubleWritable for myVertexValue
-  /** The shortest paths id */
-  public static final LongConfOption SOURCE_ID =
-      new LongConfOption("SimpleShortestPathsVertex.sourceId", 1,
-          "The shortest paths id");
+ 
+
+ Long nodes_num=34; //numbers of nodes for the karate example
+
+
+  public int getSourceId(){
+	return getSuperstep()/nodes_num;
+}
+
   /** Class logger */
   private static final Logger LOG =
       Logger.getLogger(SimpleShortestPathsComputation.class);
 
-  /**
-   * Is this vertex the source id?
-   *
-   * @param vertex Vertex
-   * @return True if the source id
-   */
+
   private boolean isSource(Vertex<LongWritable, ?, ?> vertex) {
-    return vertex.getId().get() == SOURCE_ID.get(getConf());
+    return vertex.getId().get() == getSourceId(); 
   }
 //orizei ton typo vertex pou tha xrhsimopoiei
 //orizei kai ton iterator me ta minimata... kai ton tupo kathe minimatos
@@ -65,16 +67,17 @@ public class SimpleShortestPathsComputation extends BasicComputation<
   @Override
   public void compute( 
       Vertex<LongWritable, myVertexValue, FloatWritable> vertex, 
-      Iterable<DoubleWritable> messages) throws IOException {
+      Iterable<myMessage> messages) throws IOException {
 	
-	Long nodes_num=34; //o arithmos twn komvwn prosarmosmeno gia to paradeigma karate
 	double delta;
 	double sigma;
+	ArrayList<LongWritable>myParents = vertex.getParents(); //kathe kombos exei lista me tous goneis tou (predessesor)
 	double minDist = isSource(vertex) ? 0d : Double.MAX_VALUE;
+	long vertexId = vertex.getId().get();
+    
     
 	
 	if((getSuperstep()mod nodes_num==0){ //send message to my parents containing delta
-		minDist=Double.MAX_VALUE; // einai san na to gyrizw se undiscovered ton node
 		
 		//node sends it's sigma to its parent
   		sendMessage(edge.getTargetVertexId(), new DoubleWritable(sigma));
@@ -88,6 +91,11 @@ public class SimpleShortestPathsComputation extends BasicComputation<
 		}
 
   
+		//clear vertex info
+		vertex.clearParents();
+		vertex.setDistance(Double.MAX_VALUE); // return a node to  undiscovered
+		vertex.setValue(0);
+		
 	}
 	if(getSuperstep()==nodes_num*nodes_num){
 		vertex.voteToHalt();  
@@ -95,22 +103,28 @@ public class SimpleShortestPathsComputation extends BasicComputation<
 	
 	
     if (getSuperstep() == 0) {
-      vertex.setValue(new DoubleWritable(Double.MAX_VALUE));
+      vertex.setDistance(0);
+	vertex.setValue(0);
     }
 
-    myParents = new ArrayList<Long>(); //kathe kombos exei lista me tous goneis tou (predessesor)
 
     for (DoubleWritable message : messages) {
-      minDist = Math.min(minDist, message.get());
+	
+	 if(minDist>message.getDistance()){
+      minDist = message.getDistance();
+		vertex.addParent(message.getSenderId())
+	}
+	
     }
     if (LOG.isDebugEnabled()) {
       LOG.debug("Vertex " + vertex.getId() + " got minDist = " + minDist +
           " vertex value = " + vertex.getValue());
     }
-    if (minDist < vertex.getValue().get()) {
-      vertex.setValue(new DoubleWritable(minDist));
+    if (minDist < vertex.getDistance()) {
+	
+      vertex.setDistance(minDist);
       for (Edge<LongWritable, FloatWritable> edge : vertex.getEdges()) {
-        double distance = minDist + edge.getValue().get();
+        double distance = minDist + edge.getDistance();
         if (LOG.isDebugEnabled()) {
           LOG.debug("Vertex " + vertex.getId() + " sent to " +
               edge.getTargetVertexId() + " = " + distance);
