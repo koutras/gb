@@ -38,42 +38,46 @@ import org.apache.hadoop.io.Writable;
 public class myMessage implements Writable {
  
 
-  /** Vertex ID of the sender. */
   private long  senderId;
-  /** sigma. **/
   private long  sigma;
   private long delta;
+ 	private long distance;
 
-  /** Default empty constructor. */
-  public BrachaTouegDeadlockMessage() { /* no action */ }
 
   /**
-   * @param id        id of the vertex
+   * @param senderId        id of the vertex
    * @param sigma      actual message content
    * @param delta
    * @param distance      distance
    
    */
+	public myMessage(){}	
+
   public myMessage(long id, long sigma, long delta,long distance) { //akis: this is the constructor I need
     this.senderId = id;
     this.sigma = sigma;
 	this.delta = delta;
-	this.distance=distance
+	this.distance=distance;
   }
 
-/*
+
   @Override
   public void readFields(DataInput input) throws IOException {
-    senderId = input.readLong();
-    this.value = input.readLong();
+    this.senderId = input.readLong();
+	 this.sigma = input.readLong();
+	 this.delta = input.readLong();
+	 this.distance = input.readLong();
+	
   }
 
   @Override
   public void write(DataOutput output) throws IOException {
-    output.writeLong(senderId);
-    output.writeLong(this.value);
+    output.writeLong(this.senderId);
+    output.writeLong(this.distance);
+    output.writeLong(this.sigma);
+    output.writeLong(this.delta);
   }
-*/
+
 
   /**
    * @return long the id
@@ -105,7 +109,7 @@ public class myMessage implements Writable {
 		
 		
 	buffer.append(Long.toString(sigma)); //den xerw an exw kanei kalh metatroph
-	buffer.append("; delta: ")
+	buffer.append("; delta: ");
 	buffer.append(Long.toString(delta));
     buffer.append(" }");
 

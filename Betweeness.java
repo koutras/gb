@@ -47,7 +47,7 @@ public class Betweeness extends BasicComputation<
     LongWritable,myVertexValue, FloatWritable, DoubleWritable> {  //akis: exchanged DoubleWritable for myVertexValue
  
 
- Long nodes_num=34; //numbers of nodes for the karate example
+ Long nodes_num=Long(34); //numbers of nodes for the karate example
 
 
   public int getSourceId(){
@@ -79,20 +79,20 @@ public class Betweeness extends BasicComputation<
     
     
 	
-	if((getSuperstep()mod nodes_num==0){ //send message to my parents containing delta
+	if(getSuperstep()%nodes_num==0){ //send message to my parents containing delta
 		
 		//node sends it's sigma to its parents
 		for(int i;i<myParents.size();i++)
-			sendMessage(vertexId, myParents[i], sigma, delta, minDist) {
+			sendMessage(vertexId, myParents[i], sigma, delta, minDist); 
 		
 	}
-	if((getSuperstep()mod nodes_num==1){ //each node collects the message from it's kids and updates delta
+	if(getSuperstep()%nodes_num==1){ //each node collects the message from it's kids and updates delta
 		
 		for(myMessage message:messages){ //hopefully in this step the messages are from a node's kids
 			kids_sigma=message.getSigma();
 			kids_delta=message.getDelta();
 			//do computations of delta
-			delta+=(sigma/kids_sigma)*(1+kids_delta)
+			delta+=(sigma/kids_sigma)*(1+kids_delta);
 			vertex.setDelta(delta);
 		}
 
@@ -141,7 +141,7 @@ public class Betweeness extends BasicComputation<
           LOG.debug("Vertex " + vertex.getId() + " sent to " +
               edge.getTargetVertexId() + " = " + distance);
         }
-        sendMessage(vertexId,edge.getTargetVertexId(),sigma, delta minDist);		
+        sendMessage(vertexId,edge.getTargetVertexId(),sigma, delta, minDist);		
       }
     }
   }
@@ -149,7 +149,7 @@ public class Betweeness extends BasicComputation<
 	
 	//send message wrapper from bracha
 	
-	private void sendMessage(long sender, long receiver, long sigma, long delta, long distance long senderId) {
+	private void sendMessage(long sender, long receiver, long sigma, long delta, long distance, long senderId) {
     BrachaTouegDeadlockMessage  message;
 
     message = new myMessage(sender, sigma, delta, distance);
@@ -164,7 +164,7 @@ public class Betweeness extends BasicComputation<
 
 
 
-/*------------------------------------------------------------*/
+/*------------------------------------------------------------
 
 	public class SimpleOutDegreeCountComputation extends BasicComputation<
 	  LongWritable, LongWritable, DoubleWritable, DoubleWritable> {

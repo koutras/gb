@@ -43,10 +43,10 @@ public class myVertexValue implements Writable {
 
 
 
-  public myVertex() {
+  public myVertexValue() {
 
-	this.sigma=0;
-	this.delta=0;
+	this.sigma=0.0;
+	this.delta=0.0;
 	this.distance=Double.MAX_VALUE;
 	myParents = new ArrayList<LongWritable>(); //parents of a node (predessesor)
    
@@ -77,14 +77,14 @@ public class myVertexValue implements Writable {
 	}
 	
 	public void setDelta(Long delta){
-		this.delta=delta
+		this.delta=delta;
 	}
 	
 	public void addParent(LongWritable pid){
 		myParents.add(pid);
 	}
 	
-	public ArrayList<LongWritable> getParents)(){
+	public ArrayList<LongWritable> getParents(){
 		return myParents;
 	}
 	
@@ -101,83 +101,20 @@ public class myVertexValue implements Writable {
 	//akis: I cannot touch them yet
 	
   // Serialization functions -----------------------------------------------
-/*
+
   @Override
   public void readFields(DataInput input) throws IOException {
-    int sz;
-
-    this.isFree = input.readBoolean();
-    this.isNotified = input.readBoolean();
-
-    sz = input.readInt();
-    for (int i = 0; i < sz; ++i) {
-      ArrayList<Long> targets = new ArrayList<Long>();
-      Long tag = input.readLong();
-      int sw = input.readInt();
-
-      for (int j = 0; j < sw; ++j) {
-        Long target = input.readLong();
-
-        targets.add(target);
-      }
-
-      this.requests.put(tag, targets);
-    }
-
-    sz = input.readInt();
-    for (int i = 0; i < sz; ++i) {
-      Long key = input.readLong();
-      Long value = input.readLong();
-
-      this.waitingList.put(key, value);
-    }
-
-    sz = input.readInt();
-    for (int i = 0; i < sz; ++i) {
-      this.parents.add(Long.valueOf(input.readLong()));
-    }
-
-    this.idWithInHoldAck  = input.readLong();
-    this.idWithInHoldDone = input.readLong();
+    this.distance=input.readLong();
+ 	this.sigma=input.readLong();
+	this.delta=input.readLong;	
   }
 
   @Override
   public void write(DataOutput output) throws IOException {
     int sz;
 
-    output.writeBoolean(this.isFree);
-    output.writeBoolean(this.isNotified);
-
-    sz = this.requests.size();
-    output.writeInt(sz);
-    for (Map.Entry<Long, ArrayList<Long>> entry : this.requests.entrySet()) {
-      ArrayList<Long> targets;
-
-      output.writeLong(entry.getKey());
-      targets = entry.getValue();
-      sz = targets.size();
-      output.writeInt(sz);
-      for (Long target : targets) {
-        output.writeLong(target);
-      }
-    }
-
-    sz = this.waitingList.size();
-    output.writeInt(sz);
-    for (Map.Entry<Long, Long> entry : this.waitingList.entrySet()) {
-      output.writeLong(entry.getKey());
-      output.writeLong(entry.getValue());
-    }
-
-    sz = this.parents.size();
-    output.writeInt(sz);
-    for (int i = 0; i < sz; ++i) {
-      output.writeLong(this.parents.get(i));
-    }
-
-    output.writeLong(this.idWithInHoldAck);
-    output.writeLong(this.idWithInHoldDone);
-  }
-*/
+	output.writeLong(this.distance);
+	output.writeLong(this.sigma);
+	output.writeLong(this.delta);
 
 }
