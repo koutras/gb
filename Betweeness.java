@@ -28,6 +28,8 @@ import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.log4j.Logger;
 import java.util.ArrayList;
+import org.apache.hadoop.io.NullWritable;
+import org.apache.hadoop.io.IntWritable;
 
 import java.io.IOException;
 

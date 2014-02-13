@@ -104,9 +104,9 @@ public class myVertexValue implements Writable {
 
   @Override
   public void readFields(DataInput input) throws IOException {
-    this.distance=input.readLong();
+ //   this.distance=input.readLong();
  	this.sigma=input.readDouble();
-	this.delta=input.readDouble();	
+//	this.delta=input.readDouble();	
   }
 
   @Override
