@@ -39,8 +39,8 @@ public class myMessage implements Writable {
  
 
   private long  senderId;
-  private long  sigma;
-  private long delta;
+  private double  sigma;
+  private double delta;
  	private long distance;
 
 
@@ -53,7 +53,7 @@ public class myMessage implements Writable {
    */
 	public myMessage(){}	
 
-  public myMessage(long id, long sigma, long delta,long distance) { //akis: this is the constructor I need
+  public myMessage(long id, double sigma, double delta,long distance) { //akis: this is the constructor I need
     this.senderId = id;
     this.sigma = sigma;
 	this.delta = delta;
@@ -64,8 +64,8 @@ public class myMessage implements Writable {
   @Override
   public void readFields(DataInput input) throws IOException {
     this.senderId = input.readLong();
-	 this.sigma = input.readLong();
-	 this.delta = input.readLong();
+	 this.sigma = input.readDouble();
+	 this.delta = input.readDouble();
 	 this.distance = input.readLong();
 	
   }
@@ -74,8 +74,8 @@ public class myMessage implements Writable {
   public void write(DataOutput output) throws IOException {
     output.writeLong(this.senderId);
     output.writeLong(this.distance);
-    output.writeLong(this.sigma);
-    output.writeLong(this.delta);
+    output.writeDouble(this.sigma);
+    output.writeDouble(this.delta);
   }
 
 
@@ -89,11 +89,11 @@ public class myMessage implements Writable {
   /**
    * @return long value of a node
    */
-  public long getSigma() {
+  public double getSigma() {
     return sigma;
   }
 
-  public long getDelta(){
+  public double getDelta(){
 	return delta;
 }
   public long getDistance(){
@@ -108,9 +108,9 @@ public class myMessage implements Writable {
     buffer.append("{ sender: " +  this.senderId + "; sigma: ");
 		
 		
-	buffer.append(Long.toString(sigma)); //den xerw an exw kanei kalh metatroph
+	buffer.append(Double.toString(sigma)); //den xerw an exw kanei kalh metatroph
 	buffer.append("; delta: ");
-	buffer.append(Long.toString(delta));
+	buffer.append(Double.toString(delta));
     buffer.append(" }");
 
     return buffer.toString();

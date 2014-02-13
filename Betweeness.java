@@ -27,6 +27,7 @@ import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.log4j.Logger;
+import java.util.ArrayList;
 
 import java.io.IOException;
 
@@ -35,23 +36,18 @@ import org.apache.giraph.examples.utils.myVertexValue; //akis: this is my import
 import org.apache.giraph.examples.utils.myMessage;
 
 
-
-/**
- * Implementing Betweeness calculaton based on SimpleShortestPathsComputation 
- */
 @Algorithm(
-    name = "Single Source Betweeness (based on Shortest paths)",
-    description = "Finds all shortest paths from a selected vertex and update some values like parents and sigma"
+    name = "Betweeness "
 )
-public class Betweeness extends BasicComputation<
-    LongWritable,myVertexValue, FloatWritable, DoubleWritable> {  //akis: exchanged DoubleWritable for myVertexValue
+public class Betweeness
+ extends BasicComputation<LongWritable,myVertexValue, FloatWritable, myMessage> {  //akis: exchanged DoubleWritable for myVertexValue
  
 
- Long nodes_num=Long(34); //numbers of nodes for the karate example
+ long nodes_num=34l; //numbers of nodes for the karate example
 
 
   public int getSourceId(){
-	return getSuperstep()/nodes_num;
+	return (int)(getSuperstep()/nodes_num);
 }
 
   /** Class logger */
@@ -70,11 +66,13 @@ public class Betweeness extends BasicComputation<
       Vertex<LongWritable, myVertexValue, FloatWritable> vertex, 
       Iterable<myMessage> messages) throws IOException {
 	
-	double delta = vertex.getDelta();
-	double sigma = vertex.getSigma();
-	ArrayList<LongWritable>myParents = vertex.getParents(); //kathe kombos exei lista me tous goneis tou (predessesor)
+	double kids_sigma;
+	double kids_delta;
+	double delta = vertex.getValue().getDelta();
+	double sigma = vertex.getValue().getSigma();
+	ArrayList<LongWritable>myParents = vertex.getValue().getParents(); //kathe kombos exei lista me tous goneis tou (predessesor)
 	
-	double minDist = isSource(vertex) ? 0d : Double.MAX_VALUE;
+	long minDist = isSource(vertex) ? 0l : Long.MAX_VALUE;
 	long vertexId = vertex.getId().get();
     
     
@@ -82,61 +80,62 @@ public class Betweeness extends BasicComputation<
 	if(getSuperstep()%nodes_num==0){ //send message to my parents containing delta
 		
 		//node sends it's sigma to its parents
-		for(int i;i<myParents.size();i++)
-			sendMessage(vertexId, myParents[i], sigma, delta, minDist); 
+		for(int i=0;i<myParents.size();i++)
+			sendMessage(vertexId, myParents.get(i), sigma, delta, minDist); 
 		
 	}
 	if(getSuperstep()%nodes_num==1){ //each node collects the message from it's kids and updates delta
 		
 		for(myMessage message:messages){ //hopefully in this step the messages are from a node's kids
+		 	
 			kids_sigma=message.getSigma();
 			kids_delta=message.getDelta();
 			//do computations of delta
 			delta+=(sigma/kids_sigma)*(1+kids_delta);
-			vertex.setDelta(delta);
+			vertex.getValue().setDelta(delta);
 		}
 
   
 		//clear vertex info
-		vertex.clearParents();
-		vertex.setDistance(Double.MAX_VALUE); // return a node to  undiscovered
-		vertex.setSigma(0);
-		vertex.setDelta(0);
+		vertex.getValue().removeParents();
+		vertex.getValue().setDistance(Long.MAX_VALUE); // return a node to  undiscovered
+		vertex.getValue().setSigma(0d);
+		vertex.getValue().setDelta(0d);
 		
 	}
 	if(getSuperstep()==nodes_num*nodes_num){
 		if (LOG.isDebugEnabled()) {
-	      LOG.debug("Vertex " + vertex.getId() + " has betweenness = " + vertex.getDelta());
+	      LOG.debug("Vertex " + vertex.getId() + " has betweenness = " + vertex.getValue().getDelta());
 	    }
 		vertex.voteToHalt();  
 	}
 	
 	
     if (getSuperstep() == 0) {
-      vertex.setDistance(0);
-	  vertex.setDelta(0);
-	  vertex.setSigma(0);
-	  delta=0;
+      vertex.getValue().setDistance(0l);
+	  vertex.getValue().setDelta(0d);
+	  vertex.getValue().setSigma(0d);
+	  delta=0d;
     }
 
-    for (DoubleWritable message : messages) {
+    for (myMessage message : messages) {
 	
 	 if(minDist>message.getDistance()){ //minDist here is the minimum value amongst the messages
-       minDist = message.getDistance();
-		vertex.setSigma(sigma + message.getSigma());
-		vertex.addParent(message.getSenderId()); //adding the parent
+       		minDist = message.getDistance();
+		vertex.getValue().setSigma(sigma + message.getSigma());
+		vertex.getValue().addParent(new LongWritable(message.getSenderId())); //adding the parent
 	}
 	
     }
     if (LOG.isDebugEnabled()) {
       LOG.debug("Vertex " + vertex.getId() + " got minDist = " + minDist +
-          " vertex value = " + vertex.getValue());
+          " vertex sigma = " + vertex.getValue().getSigma());
     }
-    if (minDist < vertex.getDistance()) { //if the minimum value from the messages is smaller that the vertex's...
+    if (minDist < vertex.getValue().getDistance()) { //if the minimum value from the messages is smaller that the vertex's...
 	
-      vertex.setDistance(minDist);
+      vertex.getValue().setDistance(minDist);
       for (Edge<LongWritable, FloatWritable> edge : vertex.getEdges()) {
-        double distance = minDist + edge.getDistance();
+        double distance = minDist + edge.getValue().get();
         if (LOG.isDebugEnabled()) {
           LOG.debug("Vertex " + vertex.getId() + " sent to " +
               edge.getTargetVertexId() + " = " + distance);
@@ -149,11 +148,10 @@ public class Betweeness extends BasicComputation<
 	
 	//send message wrapper from bracha
 	
-	private void sendMessage(long sender, long receiver, long sigma, long delta, long distance, long senderId) {
-    BrachaTouegDeadlockMessage  message;
+	private void sendMessage(long sender, LongWritable receiver,double sigma, double delta, long distance) {
 
-    message = new myMessage(sender, sigma, delta, distance);
-    sendMessage(new LongWritable(receiver), message);
+    myMessage message = new myMessage(sender, sigma, delta, distance);
+    sendMessage(receiver, message);
     if (LOG.isDebugEnabled()) {
       LOG.debug("sent message " + message + " from " + sender +
                 " to " + receiver);
@@ -163,19 +161,3 @@ public class Betweeness extends BasicComputation<
 
 
 
-
-/*------------------------------------------------------------
-
-	public class SimpleOutDegreeCountComputation extends BasicComputation<
-	  LongWritable, LongWritable, DoubleWritable, DoubleWritable> {
-
-	  @Override
-	  public void compute(
-	      Vertex<LongWritable, LongWritable, DoubleWritable> vertex,
-	      Iterable<DoubleWritable> messages) throws IOException {
-	    LongWritable vertexValue = vertex.getValue();
-	    vertexValue.set(vertex.getNumEdges());
-	    vertex.setValue(vertexValue);
-	    vertex.voteToHalt();
-	  }
-	}

@@ -36,18 +36,18 @@ import org.apache.hadoop.io.Writable;
 public class myVertexValue implements Writable {
 	
  //akis
- private Long distance;
- private Long sigma;
- private Long delta;
+ private long distance;
+ private double sigma;
+ private double delta;
  private ArrayList<LongWritable> myParents;
 
 
 
   public myVertexValue() {
 
-	this.sigma=0.0;
-	this.delta=0.0;
-	this.distance=Double.MAX_VALUE;
+	this.sigma=0d;
+	this.delta=0d;
+	this.distance=Long.MAX_VALUE;
 	myParents = new ArrayList<LongWritable>(); //parents of a node (predessesor)
    
   }
@@ -57,26 +57,26 @@ public class myVertexValue implements Writable {
 
 
 
-	 public Long getDistance(){
+	 public long getDistance(){
 		return this.distance;
 	}
 
-	 public void setDistance(Long distance){
+	 public void setDistance(long distance){
 		this.distance=distance;
 	}
 
-	 public Long getSigma(){
+	 public double getSigma(){
 		return this.sigma;
 	}
 
-	 public void setSigma(Long sigma){
-		this.value=sigma;
+	 public void setSigma(double sigma){
+		this.sigma=sigma;
 	}
-	public Long getDelta(){
+	public double getDelta(){
 		return this.delta;
 	}
 	
-	public void setDelta(Long delta){
+	public void setDelta(double delta){
 		this.delta=delta;
 	}
 	
@@ -95,7 +95,7 @@ public class myVertexValue implements Writable {
 
 	  @Override
 	  public String toString() {
-	    return "sigma:" + Long.toString(sigma) +"delta: " + Long.toString(delta);
+	    return "sigma:" + Double.toString(sigma) +"delta: " + Double.toString(delta);
 	  }
 
 	//akis: I cannot touch them yet
@@ -105,8 +105,8 @@ public class myVertexValue implements Writable {
   @Override
   public void readFields(DataInput input) throws IOException {
     this.distance=input.readLong();
- 	this.sigma=input.readLong();
-	this.delta=input.readLong;	
+ 	this.sigma=input.readDouble();
+	this.delta=input.readDouble();	
   }
 
   @Override
@@ -114,7 +114,8 @@ public class myVertexValue implements Writable {
     int sz;
 
 	output.writeLong(this.distance);
-	output.writeLong(this.sigma);
-	output.writeLong(this.delta);
+	output.writeDouble(this.sigma);
+	output.writeDouble(this.delta);
 
+ }
 }
